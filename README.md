@@ -36,6 +36,6 @@ First, Create a Python file which will serve as the only module that has the sho
 When you're done, upload your showcase wherever you want. You can test it out by running `main.py` with your file inside the `showcases` folder.
 
 [^1]: Showcase objects inherit from Canvas objects in the Tkinter library. Think of them as extended Canvas objects.
-[^2]: Window objects inherit from Tk objects in the Tkinter library. Think of them as like a normal window with a GUI.
+[^2]: Window objects inherit from Tk objects in the Tkinter library. Think of them like a normal window with a GUI.
 [^3]: To see an example of this, check out the 5 default showcases in the `showcases` package in the repository's code. The first lines
 in the class will all see a call to the parent class' constructor.
