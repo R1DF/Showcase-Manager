@@ -30,7 +30,7 @@ First, Create a Python file which will serve as the only module that has the sho
   * `MODULE_NAME`: How the module will appear when `main.py` launches and detects it.
   * `MODULE_AUTHOR`: How you wish to be referred to as creator of the module.
 * Create a `Showcase` object that inherits from `ShowcaseTemplate`.
-* Ensure, in the first lines in the class, that the `super()` function is being called with `master` being used as an argument from `__init__``[^3].
+* Ensure, in the first lines in the class, that the `super()` function is being called with `master` being used as an argument from `__init__`[^3].
 * Write what you want to happen! Remember: A `Showcase` is just a Tkinter canvas.
 
 When you're done, upload your showcase wherever you want. You can test it out by running `main.py` with your file inside the `showcases` folder.
