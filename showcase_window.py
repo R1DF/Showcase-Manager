@@ -13,7 +13,8 @@ class Window(Tk):
         self.resizable(False, False)
         self.config(bg="GRAY")
 
-        # Adding showcase from module
-        self.showcase = showcase_module.Showcase(self)
-        self.showcase.pack(expand=1, fill="both")
+        # Adding showcase from module (if there is one)
+        if showcase_module is not None:
+            self.showcase = showcase_module.Showcase(self)
+            self.showcase.pack(expand=1, fill="both")
 
