@@ -1,6 +1,7 @@
 # Imports
 from tkinter import Toplevel, Label, Entry, Button
 from .showcase_template import ShowcaseTemplate
+import re
 
 # Meta
 MODULE_NAME = "Drawing a line with a linear function (y=mx+b)"
@@ -36,15 +37,33 @@ class FunctionInputter(Toplevel):
         self.protocol("WM_DELETE_WINDOW", lambda: None)
 
     def infer_inputted_function(self):
-        linear_function_input = self.linear_function_entry.get().strip().replace(" ", "")  # No spaces!
+        linear_function_input = self.linear_function_entry.get().lower().strip().replace(" ", "")  # No spaces!
 
         # Viewing
-        if not (linear_function_input.startswith("y=") or linear_function_input.startswith("f(x)=")):
-            self.details_label.config(text="Invalid input!", fg="RED")
+        if linear_function_input.startswith("y=") and linear_function_input.count("x") == 1:
+            split_determiner = 2
+
+        elif linear_function_input.startswith("f(x)") and linear_function_input.count("x") == 2:
+            split_determiner = 5
+
+        else:
+            self.details_label.config(text=f"Invalid input entered!", fg="RED")
             return
 
-        self.details_label.config(text=f"{linear_function_input} drawn successfully", fg="GREEN")
+        linear_expression = linear_function_input[split_determiner:]
+        match_query = re.search(r"^-?(\d+(\.\d+)?)?x([+-]\d+(\.\d+)?)?$", linear_expression)
+        if not match_query:
+            self.details_label.config(text=f"Invalid input entered!", fg="RED")
+            return
 
+        # Determining gradients
+        function_halves = linear_expression.split("x")
+        gradient = float(1 if not function_halves[0] else -1 if function_halves[0] == "-" else function_halves[0])
+        y_intercept = float(function_halves[1] if function_halves[1] else 0)
+
+        self.master_showcase.draw(gradient, y_intercept)
+        self.details_label.config(text=f"Expression {linear_expression} drawn successfully!", fg="GREEN")
+        return
 
 #  Canvas class (must be named as Showcase)
 class Showcase(ShowcaseTemplate):
@@ -68,8 +87,7 @@ class Showcase(ShowcaseTemplate):
 
         # Offsets (not TICK offsets) determine how much does the distance between ticks on a plane mean in units of
         # length (e.g. 1 tick up is 2 units high and 1 tick to the right is 2 units to the right)
-        self.x_offset = 1
-        self.y_offset = 1
+        self.unit_offset = 2
 
         # Ensuring drawing out ticks is possible
         self.has_ticks = (self.master.WIDTH % 20 == 0) and (self.master.HEIGHT % 20 == 0)
@@ -106,7 +124,7 @@ class Showcase(ShowcaseTemplate):
             # Drawing out units
             x_mid_tick_value = len(self.x_ticks) // 2
             for tick in self.x_ticks:
-                unit_shown = (self.x_ticks.index(tick) + 1) - x_mid_tick_value
+                unit_shown = self.unit_offset * ((self.x_ticks.index(tick) + 1) - x_mid_tick_value)
                 if unit_shown == 0:
                     continue  # No need to draw out 0
 
@@ -120,7 +138,7 @@ class Showcase(ShowcaseTemplate):
 
             y_mid_tick_value = len(self.y_ticks) // 2
             for tick in self.y_ticks:
-                unit_shown = y_mid_tick_value - (self.y_ticks.index(tick) + 1)
+                unit_shown = self.unit_offset * (y_mid_tick_value - (self.y_ticks.index(tick) + 1))
                 if unit_shown == 0:
                     continue  # No need to draw out 0
 
@@ -135,3 +153,5 @@ class Showcase(ShowcaseTemplate):
         # Create toplevel
         self.function_inputter = FunctionInputter(self, self.master)
 
+    def draw(self, gradient, y_intercept):
+        pass
