@@ -72,6 +72,7 @@ class Showcase(ShowcaseTemplate):
         super().__init__(master)
 
         # Showcase attributes
+        self.function_line = None
         self.abscissa_line = self.create_line(
             0,
             self.master.HEIGHT // 2,
@@ -87,7 +88,7 @@ class Showcase(ShowcaseTemplate):
 
         # Offsets (not TICK offsets) determine how much does the distance between ticks on a plane mean in units of
         # length (e.g. 1 tick up is 2 units high and 1 tick to the right is 2 units to the right)
-        self.unit_offset = 2
+        self.unit_offset = 1
 
         # Ensuring drawing out ticks is possible
         self.has_ticks = (self.master.WIDTH % 20 == 0) and (self.master.HEIGHT % 20 == 0)
@@ -153,5 +154,33 @@ class Showcase(ShowcaseTemplate):
         # Create toplevel
         self.function_inputter = FunctionInputter(self, self.master)
 
+    def get_relative_coordinates(self, coordinates):
+        cartesian_x, cartesian_y = coordinates
+        cartesian_y = -cartesian_y  #  flipped to negative IDK how but this actually works? TODO figure out why this works
+        x_tick_length = self.master.WIDTH / (self.x_ticks_amount - 1)
+        y_tick_length = self.master.HEIGHT / (self.y_ticks_amount - 1)
+        x_additive = (self.x_ticks_amount - 1) / 2
+        y_additive = (self.y_ticks_amount - 1) / 2
+        cartesian_x += x_additive
+        cartesian_y += y_additive
+
+        # TODO account for tick unit
+        return (cartesian_x * x_tick_length, cartesian_y * y_tick_length)
+
     def draw(self, gradient, y_intercept):
-        pass
+        # Resetting function
+        self.remove(self.function_line)
+
+        # Getting first 2 points (x-intercept and y-intercept)
+        point_1_cartesian_coordinates = (0, y_intercept)  # y=mx+b but x = 0, y-intercept is turned negative here
+        point_2_cartesian_coordinates = (-y_intercept / gradient, 0)  # y=mx+b but y = 0
+        point_1_relative_coordinates, point_2_relative_coordinates = \
+            [self.get_relative_coordinates(x) for x in (point_1_cartesian_coordinates,
+                                                        point_2_cartesian_coordinates)]
+
+        # Extending them to fill the screen
+
+
+        # Drawing out new points
+        self.function_line = self.create_line(*point_1_relative_coordinates, *point_2_relative_coordinates, width=2)
+        self.tag_raise(self.function_line)
