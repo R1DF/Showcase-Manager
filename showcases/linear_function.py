@@ -2,6 +2,7 @@
 from tkinter import Toplevel, Label, Entry, Button
 from .showcase_template import ShowcaseTemplate
 import re
+import sys
 
 # Meta
 MODULE_NAME = "Drawing a line with a linear function (y=mx+b)"
@@ -50,6 +51,7 @@ class FunctionInputter(Toplevel):
             self.details_label.config(text=f"Invalid input entered!", fg="RED")
             return
 
+        # Checkin expression pattern in full
         linear_expression = linear_function_input[split_determiner:]
         match_query = re.search(r"^-?(\d+(\.\d+)?)?x([+-]\d+(\.\d+)?)?$", linear_expression)
         if not match_query:
@@ -61,6 +63,12 @@ class FunctionInputter(Toplevel):
         gradient = float(1 if not function_halves[0] else -1 if function_halves[0] == "-" else function_halves[0])
         y_intercept = float(function_halves[1] if function_halves[1] else 0)
 
+        # Gradient must not be zero
+        if gradient == 0:
+            self.details_label.config(text=f"Invalid input entered!", fg="RED")
+            return
+
+        # Drawing out line
         self.master_showcase.draw(gradient, y_intercept)
         self.details_label.config(text=f"Expression {linear_expression} drawn successfully!", fg="GREEN")
         return
@@ -72,27 +80,25 @@ class Showcase(ShowcaseTemplate):
         super().__init__(master)
 
         # Showcase attributes
-        self.function_line = None
-        self.abscissa_line = self.create_line(
-            0,
-            self.master.HEIGHT // 2,
-            self.master.WIDTH,
-            self.master.HEIGHT // 2
-        )
-        self.ordinate_line = self.create_line(
-            self.master.WIDTH // 2,
-            0,
-            self.master.WIDTH // 2,
-            self.master.HEIGHT
-        )
+        if self.master.WIDTH / self.master.HEIGHT == 3/2:
+            self.function_line = None
+            self.abscissa_line = self.create_line(
+                0,
+                self.master.HEIGHT // 2,
+                self.master.WIDTH,
+                self.master.HEIGHT // 2
+            )
+            self.ordinate_line = self.create_line(
+                self.master.WIDTH // 2,
+                0,
+                self.master.WIDTH // 2,
+                self.master.HEIGHT
+            )
 
-        # Offsets (not TICK offsets) determine how much does the distance between ticks on a plane mean in units of
-        # length (e.g. 1 tick up is 2 units high and 1 tick to the right is 2 units to the right)
-        self.unit_offset = 1
+            # Offsets (not TICK offsets) determine how much does the distance between ticks on a plane mean in units of
+            # length (e.g. 1 tick up is 2 units high and 1 tick to the right is 2 units to the right)
+            self.unit_offset = 1
 
-        # Ensuring drawing out ticks is possible
-        self.has_ticks = (self.master.WIDTH % 20 == 0) and (self.master.HEIGHT % 20 == 0)  # TODO figure out limits for when poogram works
-        if self.has_ticks:
             # Making calculations to draw "ticks" (small lines that space out coordinate points)
             tick_offset_1 = self.master.WIDTH // 20   # 20 is constant. Setting the value to anything else breaks everything
             tick_offset_2 = self.master.HEIGHT // 20
@@ -151,22 +157,25 @@ class Showcase(ShowcaseTemplate):
                     font="Arial 8"
                 ), unit_shown])  # [unit object, unit shown]
 
-        # Create toplevel
-        self.function_inputter = FunctionInputter(self, self.master)
+            # Create toplevel
+            self.function_inputter = FunctionInputter(self, self.master)
+        else:
+            print("Please change your window resolution to fit the ratio 3:2 to make the showcase work.")
+            sys.exit()
 
     def get_relative_coordinates(self, coordinates):
         # Calculating Cartesian coordinates with account to unit offset
         cartesian_x, cartesian_y = [coordinate / self.unit_offset for coordinate in coordinates]
         cartesian_y = -cartesian_y  #  flipped to negative IDK how but this actually works? TODO figure out why this works
 
-        x_additive = (self.x_ticks_amount - 1) / 2  # Additives remove negatives on the number line
-        y_additive = (self.y_ticks_amount - 1) / 2
+        x_additive = self.x_ticks_amount / 2  # Additives remove negatives on the number line
+        y_additive = self.y_ticks_amount / 2
         cartesian_x += x_additive
         cartesian_y += y_additive
 
         # Calculating how long would one "tick"
-        x_tick_length = self.master.WIDTH / (self.x_ticks_amount - 1)
-        y_tick_length = self.master.HEIGHT / (self.y_ticks_amount - 1)
+        x_tick_length = self.master.WIDTH / self.x_ticks_amount
+        y_tick_length = self.master.HEIGHT / self.y_ticks_amount
 
         # Getting points
         return (cartesian_x * x_tick_length, cartesian_y * y_tick_length)
