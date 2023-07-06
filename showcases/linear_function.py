@@ -91,7 +91,7 @@ class Showcase(ShowcaseTemplate):
         self.unit_offset = 1
 
         # Ensuring drawing out ticks is possible
-        self.has_ticks = (self.master.WIDTH % 20 == 0) and (self.master.HEIGHT % 20 == 0)
+        self.has_ticks = (self.master.WIDTH % 20 == 0) and (self.master.HEIGHT % 20 == 0)  # TODO figure out limits for when poogram works
         if self.has_ticks:
             # Making calculations to draw "ticks" (small lines that space out coordinate points)
             tick_offset_1 = self.master.WIDTH // 20   # 20 is constant. Setting the value to anything else breaks everything
@@ -169,23 +169,21 @@ class Showcase(ShowcaseTemplate):
         y_tick_length = self.master.HEIGHT / (self.y_ticks_amount - 1)
 
         print((cartesian_x - x_additive) * x_tick_length, (cartesian_y - y_additive) * y_tick_length)
-        # TODO account for tick unit
         return (cartesian_x * x_tick_length, cartesian_y * y_tick_length)
 
     def draw(self, gradient, y_intercept):
         # Resetting function
         self.remove(self.function_line)
 
-        # Getting first 2 points (x-intercept and y-intercept)
-        point_1_cartesian_coordinates = (0, y_intercept)  # y=mx+b but x = 0, y-intercept is turned negative here
-        point_2_cartesian_coordinates = (-y_intercept / gradient, 0)  # y=mx+b but y = 0
+        # Getting first 2 points base coordinates (x-intercept and y-intercept)
+        limiting_y = (self.y_ticks_amount - 1) / 2
+        limiting_point_1 = ((limiting_y - y_intercept) / gradient, limiting_y)
+        limiting_point_2 = ((-limiting_y - y_intercept) / gradient, -limiting_y)
+
+        # Getting coordinates relative to the window
         point_1_relative_coordinates, point_2_relative_coordinates = \
-            [self.get_relative_coordinates(x) for x in (point_1_cartesian_coordinates,
-                                                        point_2_cartesian_coordinates)]
-
-        # Extending them to fill the screen
-
-
+            [self.get_relative_coordinates(x) for x in (limiting_point_1,
+                                                        limiting_point_2)]
         # Drawing out new points
         self.function_line = self.create_line(*point_1_relative_coordinates, *point_2_relative_coordinates, width=2)
         self.tag_raise(self.function_line)
