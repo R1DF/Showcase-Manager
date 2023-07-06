@@ -168,7 +168,7 @@ class Showcase(ShowcaseTemplate):
         x_tick_length = self.master.WIDTH / (self.x_ticks_amount - 1)
         y_tick_length = self.master.HEIGHT / (self.y_ticks_amount - 1)
 
-        print((cartesian_x - x_additive) * x_tick_length, (cartesian_y - y_additive) * y_tick_length)
+        # Getting points
         return (cartesian_x * x_tick_length, cartesian_y * y_tick_length)
 
     def draw(self, gradient, y_intercept):
