@@ -134,7 +134,7 @@ class Showcase(ShowcaseTemplate):
                     tick_coordinates[2] - 2,
                     (self.master.HEIGHT // 2) + 13,
                     text=f"{unit_shown}",
-                    font="Arial 10"
+                    font="Arial 8"
                 ), unit_shown])  # [unit object, unit shown]
 
             y_mid_tick_value = len(self.y_ticks) // 2
@@ -148,22 +148,27 @@ class Showcase(ShowcaseTemplate):
                     (self.master.WIDTH // 2) + 13,
                     tick_coordinates[3] - 2,
                     text=f"{unit_shown}",
-                    font="Arial 10"
+                    font="Arial 8"
                 ), unit_shown])  # [unit object, unit shown]
 
         # Create toplevel
         self.function_inputter = FunctionInputter(self, self.master)
 
     def get_relative_coordinates(self, coordinates):
-        cartesian_x, cartesian_y = coordinates
+        # Calculating Cartesian coordinates with account to unit offset
+        cartesian_x, cartesian_y = [coordinate / self.unit_offset for coordinate in coordinates]
         cartesian_y = -cartesian_y  #  flipped to negative IDK how but this actually works? TODO figure out why this works
-        x_tick_length = self.master.WIDTH / (self.x_ticks_amount - 1)
-        y_tick_length = self.master.HEIGHT / (self.y_ticks_amount - 1)
-        x_additive = (self.x_ticks_amount - 1) / 2
+
+        x_additive = (self.x_ticks_amount - 1) / 2  # Additives remove negatives on the number line
         y_additive = (self.y_ticks_amount - 1) / 2
         cartesian_x += x_additive
         cartesian_y += y_additive
 
+        # Calculating how long would one "tick"
+        x_tick_length = self.master.WIDTH / (self.x_ticks_amount - 1)
+        y_tick_length = self.master.HEIGHT / (self.y_ticks_amount - 1)
+
+        print((cartesian_x - x_additive) * x_tick_length, (cartesian_y - y_additive) * y_tick_length)
         # TODO account for tick unit
         return (cartesian_x * x_tick_length, cartesian_y * y_tick_length)
 
