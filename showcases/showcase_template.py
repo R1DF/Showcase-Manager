@@ -15,3 +15,6 @@ class ShowcaseTemplate(Canvas):
     def remove(self, widget):
         if isinstance(widget, int):
             self.delete(widget)
+
+    def end(self):
+        self.master.handle_close()
