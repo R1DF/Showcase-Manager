@@ -1,9 +1,12 @@
 # Imports
-from .showcase_template import ShowcaseTemplate
+from showcase_template import ShowcaseTemplate
+
 
 # Meta
-MODULE_NAME = "Finding the distance between 2 points"
+MODULE_NAME = "Distance between 2 points"
 MODULE_AUTHOR = "R1DF"
+MODULE_DESCRIPTION = "This showcase allows the user to click on 2 points on a window to calculate the distance\n" \
+                     "between them using the Pythagorean theorem."
 
 
 #  Canvas class (must be named as Showcase)

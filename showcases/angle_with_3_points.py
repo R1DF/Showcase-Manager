@@ -1,10 +1,12 @@
 # Imports
-from .showcase_template import ShowcaseTemplate
+from showcase_template import ShowcaseTemplate
 from math import copysign, acos, degrees, pi
 
 # Meta
-MODULE_NAME = "Constructing an angle and calculating it"
+MODULE_NAME = "Angle construction"
 MODULE_AUTHOR = "R1DF"
+MODULE_DESCRIPTION = "This showcase will allow you to construct an angle by clicking on 3 points on the screen\n" \
+                     "and calculate it with the law of cosines."
 
 
 #  Canvas class (must be named as Showcase)
