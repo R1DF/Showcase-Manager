@@ -1,10 +1,11 @@
 # Imports
-from tkinter import Tk, Toplevel, Frame, Listbox, Button, Scrollbar, Label, messagebox, filedialog
+from tkinter import Tk, Toplevel, Frame, Listbox, Button, Label, messagebox, filedialog, Scrollbar
 from time import localtime, strftime
 import sys
 import importlib
 import importlib.util
 import os
+import conditions
 
 
 # Showcase description toplevel class
@@ -41,7 +42,7 @@ class ShowcaseWindow(Toplevel):
         self.master = master
         super().__init__(self.master)
         self.title("Physics Showcase")
-        self.WIDTH, self.HEIGHT = 400, 400
+        self.WIDTH, self.HEIGHT = self.master.showcase_window_resolution
         self.geometry(f"{self.WIDTH}x{self.HEIGHT}")
         self.resizable(False, False)
         self.config(bg="GRAY")
@@ -66,8 +67,10 @@ class ShowcaseManager(Tk):
         super().__init__()
         self.modules = []
         self.title("List of Showcases")
+        self.showcase_window_resolution = [600, 400]
         self.showcase_window = None
         self.showcase_description_window = None
+        self.geometry()
         self.resizable(False, False)
 
         # Creating widgets
@@ -111,16 +114,23 @@ class ShowcaseManager(Tk):
         self.logs_label = Label(self.logs_frame, text="Log:")
         self.logs_label.pack()
 
-        self.logs_inner_frame = Frame(self.logs_frame)
+        self.logs_outer_frame = Frame(self.logs_frame)
+        self.logs_outer_frame.pack()
+
+        self.logs_inner_frame = Frame(self.logs_outer_frame)
         self.logs_inner_frame.pack()
 
         self.logs_listbox = Listbox(self.logs_inner_frame, width=45)
         self.logs_listbox.pack(side="left")
 
-        self.logs_scrollbar = Scrollbar(self.logs_inner_frame, command=self.logs_listbox.yview)
-        self.logs_scrollbar.pack(side="right", fill="y")
+        self.logs_y_scrollbar = Scrollbar(self.logs_inner_frame, command=self.logs_listbox.yview)
+        self.logs_y_scrollbar.pack(side="right", fill="y")
 
-        self.logs_listbox.config(yscrollcommand=self.logs_scrollbar.set)
+        self.logs_x_scrollbar = Scrollbar(self.logs_outer_frame, command=self.logs_listbox.xview)
+        self.logs_x_scrollbar.pack(side="bottom", fill="both")
+        ### TODO: Figure out if Xscrollbar appearance is incorrect only for mac
+
+        self.logs_listbox.config(yscrollcommand=self.logs_y_scrollbar.set, xscrollcommand=self.logs_x_scrollbar.set)
 
         # Protocol
         self.protocol("WM_DELETE_WINDOW", self.confirm_exit)
@@ -149,6 +159,17 @@ class ShowcaseManager(Tk):
         # Returning showcases
         return showcases
 
+    def check_module_conditions(self, module):
+        if "MODULE_CONDITIONS" in dir(module):
+
+            # For future version consider using * for more arguments?
+            for function_name, argument, error_message in module.MODULE_CONDITIONS:
+                function = getattr(conditions, function_name)
+                if not function(self, argument):
+                    self.add_to_log(error_message)
+                    return False
+        return True
+
     def view_selected_showcase(self):
         if not self.modules_listbox.curselection():
             messagebox.showerror("Error", "Please select a showcase.")
@@ -156,8 +177,9 @@ class ShowcaseManager(Tk):
 
         # Getting index of module and loading it
         selected_module = self.modules[self.modules_listbox.curselection()[0]]
-        self.showcase_window = ShowcaseWindow(self, selected_module)
-        self.lock()
+        if self.check_module_conditions(selected_module):
+            self.showcase_window = ShowcaseWindow(self, selected_module)
+            self.lock()
 
     def load_external_showcase(self):
         # Finding path
@@ -183,8 +205,9 @@ class ShowcaseManager(Tk):
             return
 
         # Load module
-        self.showcase_window = ShowcaseWindow(self, module)
-        self.lock()
+        if self.check_module_conditions(module):
+            self.showcase_window = ShowcaseWindow(self, module)
+            self.lock()
 
 
     def update_showcases(self):
