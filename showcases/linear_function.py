@@ -9,7 +9,7 @@ MODULE_AUTHOR = "R1DF"
 MODULE_DESCRIPTION = "This showcase will allow you to enter a linear function and the program will graph it. Only\n" \
                      "works at a 3:2 width to height resolution."
 MODULE_CONDITIONS = [
-    [{"window_height_ratio": 1.5}, "Window resolution needs to have 3:2 ratio."]
+    ["satisfy_resolution_ratio", 1.5, "Window resolution needs to have 3:2 ratio."]
 ]
 
 # Function Inputter Toplevel
