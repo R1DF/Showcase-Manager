@@ -126,9 +126,8 @@ class ShowcaseManager(Tk):
         self.logs_y_scrollbar = Scrollbar(self.logs_inner_frame, command=self.logs_listbox.yview)
         self.logs_y_scrollbar.pack(side="right", fill="y")
 
-        self.logs_x_scrollbar = Scrollbar(self.logs_outer_frame, command=self.logs_listbox.xview)
+        self.logs_x_scrollbar = Scrollbar(self.logs_outer_frame, orient="horizontal", command=self.logs_listbox.xview)
         self.logs_x_scrollbar.pack(side="bottom", fill="both")
-        ### TODO: Figure out if Xscrollbar appearance is incorrect only for mac
 
         self.logs_listbox.config(yscrollcommand=self.logs_y_scrollbar.set, xscrollcommand=self.logs_x_scrollbar.set)
 
