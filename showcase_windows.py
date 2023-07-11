@@ -134,6 +134,9 @@ class ShowcaseManager(Tk):
         # Protocol
         self.protocol("WM_DELETE_WINDOW", self.confirm_exit)
 
+        # Bindings
+        self.modules_listbox.bind("<Double-Button>", lambda x: self.view_selected_showcase())
+
         # Loading showcases
         sys.path.append(os.path.join(os.getcwd(), "showcases"))  # Recognise showcase package and makes template importable
         self.modules = self.scan_showcases()
