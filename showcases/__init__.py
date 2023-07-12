@@ -1,1 +1,1 @@
-from .showcase_template import ShowcaseTemplate
+from showcase_template import ShowcaseTemplate
