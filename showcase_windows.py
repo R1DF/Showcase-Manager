@@ -174,6 +174,9 @@ class ShowcaseManager(Tk):
         return True
 
     def view_selected_showcase(self):
+        if self.showcase_window is not None:
+            return  # To prevent Double-Button loophole abuse
+
         if not self.modules_listbox.curselection():
             messagebox.showerror("Error", "Please select a showcase.")
             return
