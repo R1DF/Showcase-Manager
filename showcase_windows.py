@@ -40,6 +40,7 @@ class ShowcaseWindow(Toplevel):
     def __init__(self, master, showcase_module):
         # Setup
         self.master = master
+        self.showcase_module = showcase_module
         super().__init__(self.master)
         self.title("Physics Showcase")
         self.WIDTH, self.HEIGHT = self.master.showcase_window_resolution
@@ -56,6 +57,7 @@ class ShowcaseWindow(Toplevel):
 
     def handle_close(self):
         self.master.showcase_window = None
+        self.master.add_to_log(f"Closed showcase \"{self.showcase_module.MODULE_NAME}\".")
         self.master.unlock()
         super().destroy()
 
@@ -163,7 +165,6 @@ class ShowcaseManager(Tk):
 
     def check_module_conditions(self, module):
         if "MODULE_CONDITIONS" in dir(module):
-
             # For future version consider using * for more arguments?
             for function_name, argument, error_message in module.MODULE_CONDITIONS:
                 function = getattr(conditions, function_name)
@@ -181,6 +182,7 @@ class ShowcaseManager(Tk):
         selected_module = self.modules[self.modules_listbox.curselection()[0]]
         if self.check_module_conditions(selected_module):
             self.showcase_window = ShowcaseWindow(self, selected_module)
+            self.add_to_log(f"Loaded showcase \"{selected_module.MODULE_NAME}\".")
             self.lock()
 
     def load_external_showcase(self):
@@ -209,6 +211,7 @@ class ShowcaseManager(Tk):
         # Load module
         if self.check_module_conditions(module):
             self.showcase_window = ShowcaseWindow(self, module)
+            self.add_to_log(f"Loaded showcase \"{module.MODULE_NAME}\".")
             self.lock()
 
 
@@ -242,7 +245,7 @@ class ShowcaseManager(Tk):
         self.modules_listbox.config(state="disabled")
 
     def add_to_log(self, text):
-        self.logs_listbox.insert("end", f"[{strftime('%d/%m/%y %H:%M:%S', localtime())}] {text}")
+        self.logs_listbox.insert("end", f"[{strftime('%d/%m %H:%M:%S', localtime())}] {text}")
 
     def confirm_exit(self):
         if messagebox.askyesno("Confirm exit", "Are you sure you want to quit?"):
