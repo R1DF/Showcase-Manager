@@ -26,7 +26,7 @@ class BoxMassSetterToplevel(Toplevel):
         self.introduction_label = Label(self, text="Mass in kilograms:")
         self.introduction_label.pack()
 
-        self.mass_entry = Entry(self)
+        self.mass_entry = Entry(self, width=4)
         self.mass_entry.pack()
 
         self.set_button = Button(self, text="Done", command=self.set_mass)
@@ -47,6 +47,9 @@ class BoxMassSetterToplevel(Toplevel):
         mass = round(float(mass_str), self.master_showcase.QUANTITY_PRECISION_CONSTANT)
         if mass == 0:
             messagebox.showerror("Error", "Mass cannot be 0kg.")
+            return
+        elif mass > 9999:
+            messagebox.showerror("Error", "Mass cannot be greater than 9999.")
             return
         self.master_showcase.configure_mass(float(mass_str))
         self.handle_close()
@@ -98,7 +101,7 @@ class ForceAdderToplevel(Toplevel):
         self.magnitude_label = Label(self.details_frame, text="Magnitude in Newtons:")
         self.magnitude_label.grid(row=1, column=0)
 
-        self.magnitude_entry = Entry(self.details_frame)
+        self.magnitude_entry = Entry(self.details_frame, width=4)
         self.magnitude_entry.grid(row=1, column=1)
 
         self.add_button = Button(self, text="Add", command=self.add_force)
@@ -126,7 +129,9 @@ class ForceAdderToplevel(Toplevel):
         if magnitude == 0:
             messagebox.showerror("Error", "Force cannot be 0N.")
             return
-
+        elif magnitude > 9999:
+            messagebox.showerror("Error", "Force cannot be greater than 9999N.")
+            return
         self.master_showcase.add_force(direction, magnitude)
         self.handle_close()
 
@@ -206,18 +211,6 @@ class Showcase(ShowcaseTemplate):
         self.bind("<Motion>", self.handle_cursor_move, add="+")
         self.bind("<Button-1>", self.handle_cursor_lclick, add="+")
 
-        self.add_force("Up", 1)
-        self.add_force("Up", 1)
-        self.add_force("Up", 1)
-        self.add_force("Down", 1)
-        self.add_force("Down", 1)
-        self.add_force("Down", 1)
-        self.add_force("Right", 1)
-        self.add_force("Right", 1)
-        self.add_force("Right", 1)
-        self.add_force("Left", 1)
-        self.add_force("Left", 1)
-        self.add_force("Left", 1)
 
     def handle_cursor_move(self, event):
         add_force_box_coordinates = self.bbox(self.add_force_box["rect"])
