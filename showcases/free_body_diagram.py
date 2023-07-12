@@ -206,6 +206,19 @@ class Showcase(ShowcaseTemplate):
         self.bind("<Motion>", self.handle_cursor_move, add="+")
         self.bind("<Button-1>", self.handle_cursor_lclick, add="+")
 
+        self.add_force("Up", 1)
+        self.add_force("Up", 1)
+        self.add_force("Up", 1)
+        self.add_force("Down", 1)
+        self.add_force("Down", 1)
+        self.add_force("Down", 1)
+        self.add_force("Right", 1)
+        self.add_force("Right", 1)
+        self.add_force("Right", 1)
+        self.add_force("Left", 1)
+        self.add_force("Left", 1)
+        self.add_force("Left", 1)
+
     def handle_cursor_move(self, event):
         add_force_box_coordinates = self.bbox(self.add_force_box["rect"])
         mass_setter_box_coordinates = self.bbox(self.set_box_mass_box["rect"])
@@ -218,15 +231,30 @@ class Showcase(ShowcaseTemplate):
         else:
             self.itemconfig(self.add_force_box["rect"], fill="white")
             self.itemconfig(self.set_box_mass_box["rect"], fill="white")
+
     def handle_cursor_lclick(self, event):
         add_force_box_coordinates = self.bbox(self.add_force_box["rect"])
         mass_setter_box_coordinates = self.bbox(self.set_box_mass_box["rect"])
         if add_force_box_coordinates[0] <= event.x <= add_force_box_coordinates[2] and add_force_box_coordinates[1] <= event.y <= add_force_box_coordinates[3]:
-            if self.force_adder_toplevel is None and any([len(x) < 3 for x in self.forces.values()]):
-                self.force_adder_toplevel = ForceAdderToplevel(self.master, self)
+            if self.force_adder_toplevel is None:
+                if self.force_areas_filled():
+                    self.reset()
+                else:
+                    self.force_adder_toplevel = ForceAdderToplevel(self.master, self)
         elif mass_setter_box_coordinates[0] <= event.x <= mass_setter_box_coordinates[2] and mass_setter_box_coordinates[1] <= event.y <= mass_setter_box_coordinates[3]:
             if self.box_mass_setter_toplevel is None:
                 self.box_mass_setter_toplevel = BoxMassSetterToplevel(self.master, self)
+
+    def reset(self):
+        for direction, force_list in self.force_arrows.items():
+            for inner_index, force in enumerate(force_list):
+                self.delete(force)
+                self.delete(self.force_scales[direction][inner_index])
+        self.forces = {"Up": [], "Down": [], "Right": [], "Left": []}
+        self.force_arrows = {"Up": [], "Down": [], "Right": [], "Left": []}
+        self.force_scales = {"Up": [], "Down": [], "Right": [], "Left": []}
+        self.make_calculations()
+        self.itemconfig(self.add_force_box["text"], text="Add Force")
 
     def add_force(self, direction, magnitude):
         # Adding force magnitude
@@ -300,6 +328,15 @@ class Showcase(ShowcaseTemplate):
         # Updating calculations
         self.make_calculations()
 
+        # Checking if reset is needed
+        if self.force_areas_filled():
+            self.itemconfig(self.add_force_box["text"], text="Reset Forces")
+        else:
+            self.itemconfig(self.add_force_box["text"], text="Add Force")
+
+    def force_areas_filled(self):
+        return sum([len(x) for x in self.forces.values()]) == 12
+
     def configure_mass(self, mass):
         self.object_mass = round(mass, self.QUANTITY_PRECISION_CONSTANT)
         self.itemconfig(self.mass_label, text=f"{mass}kg")
@@ -312,6 +349,8 @@ class Showcase(ShowcaseTemplate):
             net_forces.append(sum(force_list))
 
         if not any(net_forces):  # If every force value is empty
+            self.itemconfig(self.net_force_text, text="")
+            self.itemconfig(self.acceleration_text, text="")
             return
 
         net_horizontal_force = round(net_forces[2] - net_forces[3], self.QUANTITY_PRECISION_CONSTANT)
