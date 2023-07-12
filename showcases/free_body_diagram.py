@@ -26,7 +26,7 @@ class BoxMassSetterToplevel(Toplevel):
         self.introduction_label = Label(self, text="Mass in kilograms:")
         self.introduction_label.pack()
 
-        self.mass_entry = Entry(self, width=7)
+        self.mass_entry = Entry(self, width=4 + self.master_showcase.QUANTITY_PRECISION_CONSTANT)
         self.mass_entry.pack()
 
         self.set_button = Button(self, text="Done", command=self.set_mass)
@@ -101,7 +101,7 @@ class ForceAdderToplevel(Toplevel):
         self.magnitude_label = Label(self.details_frame, text="Magnitude in Newtons:")
         self.magnitude_label.grid(row=1, column=0)
 
-        self.magnitude_entry = Entry(self.details_frame, width=7)
+        self.magnitude_entry = Entry(self.details_frame, width=4 + self.master_showcase.QUANTITY_PRECISION_CONSTANT)
         self.magnitude_entry.grid(row=1, column=1)
 
         self.add_button = Button(self, text="Add", command=self.add_force)
