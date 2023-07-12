@@ -112,7 +112,7 @@ class Showcase(ShowcaseTemplate):
         if quadrant_difference >= 2 or (
                 quadrant_difference == 0 and relative_coordinates_2[1] < relative_coordinates_1[1] and
                 relative_coordinates_1[0] > 0):
-            angle_radians = pi - angle_radians
+            angle_radians = round(pi - angle_radians, self.ANGLE_PRECISION_CONSTANT)
             angle_degrees = 360 - angle_degrees
 
         self.draw_description(angle_radians, angle_degrees)
