@@ -22,6 +22,8 @@ class Showcase(ShowcaseTemplate):
             30,
             text="Run-length encoding algorithm displayer"
         )
+        self.typing_active = False
+        self.uncompressed_text = ""
 
         # Creating grid with text
         self.BOX_LENGTH = 60
@@ -57,6 +59,11 @@ class Showcase(ShowcaseTemplate):
             justify="center",
             font="Arial 14"
         )
+        self.typing_active_text = self.create_text(
+            (self.master.WIDTH / 2) + 165,
+            (self.master.HEIGHT / 2) + 65,
+            text=""
+        )
 
         # Creating button
         self.compress_button = {
@@ -76,7 +83,19 @@ class Showcase(ShowcaseTemplate):
 
         # Handling motion
         self.bind("<Motion>", self.handle_motion, add="+")
+        self.bind("<Button-1>", self.handle_lclick, add="+")
+        self.master.bind("<KeyPress>", self.handle_type, add="+")
 
+    def handle_lclick(self, event):
+        if self.typing_active:
+            self.typing_active = False
+            self.itemconfig(self.typing_active_text, text="")
+            return
+
+        if self.GRID_POSITION_X_OFFSET < event.x < self.BOX_AMOUNT * self.BOX_LENGTH + self.GRID_POSITION_X_OFFSET and\
+                self.GRID_POSITION_Y_OFFSET < event.y < self.BOX_AMOUNT * self.BOX_LENGTH + self.GRID_POSITION_Y_OFFSET:
+            self.typing_active = True
+            self.itemconfig(self.typing_active_text, text="Key presses are being recorded.")
     def handle_motion(self, event):
         compress_box_coordinates = self.bbox(self.compress_button["rect"])
         if compress_box_coordinates[0] < event.x < compress_box_coordinates[2] and compress_box_coordinates[
@@ -93,3 +112,15 @@ class Showcase(ShowcaseTemplate):
             else:
                 self.itemconfig(box, fill="white")
 
+    def handle_type(self, event):
+        if not self.typing_active:
+            return
+
+        char = event.char
+        if event.keysym == "BackSpace" and len(self.uncompressed_text):
+            self.itemconfig(self.rle_labels[len(self.uncompressed_text) - 1], text="")
+            self.uncompressed_text = self.uncompressed_text[:-1]
+
+        elif char.isalpha() and len(self.uncompressed_text) != self.BOX_AMOUNT ** 2:
+            self.itemconfig(self.rle_labels[len(self.uncompressed_text)], text=char)
+            self.uncompressed_text += char
