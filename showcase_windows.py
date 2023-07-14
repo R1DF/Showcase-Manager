@@ -32,6 +32,7 @@ class ShowcaseDescriptionWindow(Toplevel):
 
     def handle_close(self):
         self.master.showcase_description_window = None
+        self.master.unbind("<KeyPress>")
         self.master.unlock()
         super().destroy()
 
