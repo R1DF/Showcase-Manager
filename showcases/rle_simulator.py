@@ -48,7 +48,7 @@ class Showcase(ShowcaseTemplate):
                     text=""
                 ))
 
-        # Creating description text
+        # Creating text widgets
         self.create_text(
             (self.master.WIDTH / 2) + 165,
             (self.master.HEIGHT / 2) - 80,
@@ -61,8 +61,14 @@ class Showcase(ShowcaseTemplate):
         )
         self.typing_active_text = self.create_text(
             (self.master.WIDTH / 2) + 165,
-            (self.master.HEIGHT / 2) + 65,
+            (self.master.HEIGHT / 2) + 60,
             text=""
+        )
+        self.compressed_text_label = self.create_text(
+            (self.master.WIDTH / 2) + 165,
+            (self.master.HEIGHT / 2) + 105,
+            text="",
+            justify="center"
         )
 
         # Creating button
@@ -86,16 +92,43 @@ class Showcase(ShowcaseTemplate):
         self.bind("<Button-1>", self.handle_lclick, add="+")
         self.master.bind("<KeyPress>", self.handle_type, add="+")
 
-    def handle_lclick(self, event):
-        if self.typing_active:
-            self.typing_active = False
-            self.itemconfig(self.typing_active_text, text="")
-            return
+    def get_compressed(self):
+        # RLE loop
+        tracked_letter = self.uncompressed_text[0]
+        repeats_counter = 1
+        total_counter = 1
+        compressed_text = ""
+        while total_counter < len(self.uncompressed_text):
+            current_letter = self.uncompressed_text[total_counter]
+            if current_letter != tracked_letter:
+                compressed_text += f"{repeats_counter}{tracked_letter}"
+                tracked_letter = current_letter
+                repeats_counter = 0
+            total_counter += 1
+            repeats_counter += 1
 
-        if self.GRID_POSITION_X_OFFSET < event.x < self.BOX_AMOUNT * self.BOX_LENGTH + self.GRID_POSITION_X_OFFSET and\
+        # Adding last part that went unnoticed in loop above and returning
+        compressed_text += f"{repeats_counter}{tracked_letter}"
+        return compressed_text
+
+    def handle_lclick(self, event):
+        if self.GRID_POSITION_X_OFFSET < event.x < self.BOX_AMOUNT * self.BOX_LENGTH + self.GRID_POSITION_X_OFFSET and \
                 self.GRID_POSITION_Y_OFFSET < event.y < self.BOX_AMOUNT * self.BOX_LENGTH + self.GRID_POSITION_Y_OFFSET:
             self.typing_active = True
-            self.itemconfig(self.typing_active_text, text="Key presses are being recorded.")
+            self.itemconfig(self.typing_active_text, text="Key presses are being recorded")
+        else:
+            self.typing_active = False
+            self.itemconfig(self.typing_active_text,
+                            text="")
+
+        compress_box_coordinates = self.bbox(self.compress_button["rect"])
+        if compress_box_coordinates[0] < event.x < compress_box_coordinates[2] and compress_box_coordinates[
+            1] < event.y < compress_box_coordinates[3]:
+            if len(self.uncompressed_text):
+                compressed_text = self.get_compressed()
+                self.itemconfig(self.compressed_text_label, text=f"Uncompressed:\n{self.uncompressed_text}\nCompressed:\n{compressed_text}")
+            else:
+                self.itemconfig(self.compressed_text_label, text=f"")
     def handle_motion(self, event):
         compress_box_coordinates = self.bbox(self.compress_button["rect"])
         if compress_box_coordinates[0] < event.x < compress_box_coordinates[2] and compress_box_coordinates[
