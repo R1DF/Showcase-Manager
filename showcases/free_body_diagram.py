@@ -61,9 +61,8 @@ class BoxMassSetterToplevel(Toplevel):
 # Force adder
 class ForceAdderToplevel(Toplevel):
     def __init__(self, master, master_showcase):
-        self.master = master
         self.master_showcase = master_showcase
-        super().__init__(self.master)
+        super().__init__(master)
         self.title("Add force")
         self.resizable(False, False)
 

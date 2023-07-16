@@ -17,8 +17,7 @@ class FunctionInputter(Toplevel):
     def __init__(self, showcase, master_window):
         # Inheritance
         self.master_showcase = showcase
-        self.master_window = master_window
-        super().__init__(self.master_window)
+        super().__init__(master_window)
 
         # Setup
         self.title("Linear Function Entry (Physics Showcase)")
@@ -161,7 +160,7 @@ class Showcase(ShowcaseTemplate):
             ), unit_shown])  # [unit object, unit shown]
 
         # Create toplevel
-        self.function_inputter = FunctionInputter(self, self.master)
+        self.function_inputter = FunctionInputter(self, self.master_window)
 
     def get_relative_coordinates(self, coordinates):
         # Calculating Cartesian coordinates with account to unit offset

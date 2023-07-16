@@ -9,8 +9,10 @@ from tkinter import Tk, Canvas
 
 #  Canvas class (must be named as Showcase)
 class ShowcaseTemplate(Canvas):
-    def __init__(self, master: Tk):
-        super().__init__(master)
+    def __init__(self, master_window):
+        self.master_window = master_window
+        self.master_showcase = master_window.showcase_module
+        super().__init__(self.master_window)
 
     def remove(self, widget):
         if isinstance(widget, int):
